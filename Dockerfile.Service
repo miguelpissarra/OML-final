@@ -17,4 +17,4 @@ COPY src src
 EXPOSE 5002
 
 # Executa a aplicação FastAPI
-CMD conda run --no-capture-output -n OML-MA python src/app/main.py
+CMD conda run --no-capture-output -n OML-final python src/app/main.py
