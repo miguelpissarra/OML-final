@@ -31,3 +31,5 @@ Garantam que tanto o repositório do github como o package no github estão ambo
 TBD
 
 Deve ser enviada, até à data limite de entrega, um link para o vosso github (tem de estar público). Podem enviar este link para o meu email `lopesg.miguel@gmail.com` ou slack.
+
+Force cicd
