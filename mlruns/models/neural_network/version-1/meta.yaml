@@ -1,0 +1,14 @@
+aliases: []
+creation_timestamp: 1742902475816
+current_stage: None
+description: ''
+last_updated_timestamp: 1742902475816
+name: neural_network
+run_id: 202eae58cb9a4bd7a99b116a703abdbe
+run_link: ''
+source: mlflow-artifacts:/577081159158621453/202eae58cb9a4bd7a99b116a703abdbe/artifacts/nn_pipeline
+status: READY
+status_message: null
+storage_location: mlflow-artifacts:/577081159158621453/202eae58cb9a4bd7a99b116a703abdbe/artifacts/nn_pipeline
+user_id: null
+version: 1
