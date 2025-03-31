@@ -32,7 +32,7 @@ Garantam que tanto o repositório do github como o package no github estão ambo
 
 Deve ser enviada, até à data limite de entrega, um link para o vosso github (tem de estar público). Podem enviar este link para o meu email `lopesg.miguel@gmail.com` ou slack.
 
-###
+# Descrição e objetivo
 
 Este repositório (https://github.com/miguelpissarra/OML-final) descreve o processo de treino, implementação e operacionalização de modelos de Machine Learning para prever a probabilidade de crédito entrar em default. Contém instruções detalhadas sobre como configurar e utilizar o MLFlow e a FastAPI para servir os modelos assim como o fluxo de CICD definido.  
 
@@ -70,14 +70,16 @@ conda env export --no-builds -f conda.yaml
 No entanto devido a problemas com o conda.yaml criado, foi utilizado o ficheiro gerado em aula.
 
 Ficheiros docker-compose.yaml e Dockerfile.Service:
-```
+
 O ficheiro docker-compose.yaml contém a gestão dos dois serviços criados, o do mlflow e da fastapi.
 O ficheiro Dockerfile.Service contém a configuração do fastapi que irá permitir a utilização dos modelos para efetuar as previsões.
+Nota: para modelos de elevado volume, pode ser necessário ajustar o timeout do mlflow. No ficheiro docker-compose.yaml configurei (embora não fosse necessário) o timeout para 300 segundos da seguinte forma: `--gunicorn-opts "--timeout=300"`.
 
 
 ## Modelos
 Os modelos foram treinados através do notebook `rumos_bank_lending_prediction.ipynb` que está na pasta `notebooks`.
-O notebook foi adaptado para criar várias runs (com pipelines), uma por modelo, além da baseline inicial. Em termos de uns, temos:
+O notebook foi adaptado para criar várias runs (com pipelines), uma por modelo, além da baseline inicial. Em termos de runs, foram executadas as seguintes:
+- baseline
 - logistec_reg
 - KNN
 - SVM
@@ -85,10 +87,10 @@ O notebook foi adaptado para criar várias runs (com pipelines), uma por modelo,
 - Random Forest
 - Neural Network
 
-No final, o modelo com melhores resultados foi o random forest e através do frontend do mlflow, coloquei a tag de `champiom`, ajustando também o ficheiro `app.json` da pasta `config` que é onde são guardados e depois lidas as configurações de acesso aos dois serviços.
+No final, o modelo com melhores resultados foi o random forest e através do frontend do mlflow, coloquei a tag de `champiom`, ajustando também o ficheiro `app.json` da pasta `config` que é onde são guardadas e depois lidas as configurações de acesso aos dois serviços.
 
 Fica a resalva que devido ao tamanho do modelo gerado, reduzi os estimadores para manter o tamanho abaixo dos 60MB. Quando o modelo foi treinado com os estimadores que o notebook tinha inicialmente, o tamanho do modelo não permitia fazer o push para o repositório. A diferença de estimadores não prejudicou muito o desempenho e permitiu avançar com o projeto.
-Ainda criei um novo ambiente para testar a utilização do package lfs para gerir ficheiros de elevado volume. Embora localmente tenha funcionado e fosse possível faser push para o repositório (um criado para este efeito), na execução dos testes por exemplo, dava sempre erro (http connection failed ou timeout), provavelmente porque no ambiente remoto faltava a instalação do lfs. Provavelmente é possível resolver este problema de volume de dados mas não investiguei mais pois não é o propósito do projeto.
+Ainda criei um novo ambiente para testar a utilização do package `lfs` para gerir `large files` mas embora localmente tenha funcionado e fosse possível fazer push para o repositório (um criado para este efeito), quando a CICD execudava os testes por exemplo, dava sempre erro (http connection failed ou timeout), provavelmente porque no ambiente remoto faltava a instalação do `lfs`. Provavelmente é possível resolver este problema de volume de dados mas não investiguei mais pois não é o propósito do projeto.
 O importante é que com a redução dos estimadores, no final tudo funcionou sem problemas :).
 
 ## Mlflow
@@ -98,7 +100,7 @@ Para instanciar (através do terminal no VSC por exemplo):
 Para testar o funcionamento do Mlflow (UI):
 - http://localhost:5000
 
-Nota: caso não seja possível aceder à UI do Mlflow, deve ser feito o seguinte:
+Nota: caso não seja possível aceder à UI do Mlflow devido a alguma incompatibilidade (o que me aconteceu de facto), deve ser feito o seguinte:
 pip uninstall mlflow
 pip install mlflow
 Desta forma será resolvida qualquer incompatibilidade e o UI irá funcionar sem problemas.
@@ -116,7 +118,7 @@ Para correr a app: com o ambiente deste projeto ativo, na raiz do projeto, execu
 python ./src/app/main.py
 ```
 
-Para testar se o modelo ficou corretamente exposto na app:
+Para testar o serviço (fastapi), deverá ser efetuado o seguinte:
 - http://localhost:5002/docs
 - Utilizar a página html presente na diretoria `frontend` deste projeto e realizar um pedido (e ver a resposta) através desse frontend.
 
@@ -138,9 +140,9 @@ python -m pytest tests
 
 ## CICD
 
-Para criar as actions no github que garantem o CICD, é necessário criar localmente a seguinte pasta `github\workflows` e dentro dela, colocar o ficheiro yaml responsável pela execução do fluxo (action) que irá ser disparado sempre que for efetuado um push.
+Para criar as actions no github que garantem o CICD, é necessário criar localmente a pasta `github\workflows` e dentro dela, colocar o ficheiro yaml responsável pela execução do fluxo (action) que irá ser disparado sempre que for efetuado um push.
 Caso o fluxo corra sem erros, será criada uma nova versão da imagem docker no repositório.
-As actions poderão ser consultadas no repositório, aqui: https://github.com/miguelpissarra/OML-final/actions
+Os resultados das actions poderão ser consultadas no repositório, aqui: https://github.com/miguelpissarra/OML-final/actions
 
 
 # Comandos Úteis
