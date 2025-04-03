@@ -139,21 +139,23 @@ python -m pytest tests
 
 ## Docker
 
-Ficheiros docker-compose.yaml e Dockerfile.Service:
+Para containerizar os serviços, foram criados dois ficheiros, a saber: docker-compose.yaml e Dockerfile.Service:
 
 O ficheiro docker-compose.yaml contém a gestão dos dois serviços criados, o do MLFlow e da FastAPI.
+
 O ficheiro Dockerfile.Service contém a configuração do FastAPI que irá permitir a utilização dos modelos para efetuar as previsões.
-Nota: para modelos de elevado volume, pode ser necessário ajustar o timeout do MLFlow pelo que no ficheiro docker-compose.yaml configurei (embora não fosse necessário) o timeout para 300 segundos com o parametro:
+
+`Nota:` para modelos de elevado volume, pode ser necessário ajustar o timeout do MLFlow pelo que no ficheiro docker-compose.yaml configurei (embora não fosse necessário depois de reduzir os estimadores como referi acima) o timeout para 300 segundos com o parametro:
 ```
 --gunicorn-opts "--timeout=300"`
 ```
 
-Para arrancar com os containers:
+Para arrancar (e criar se necessário) os containers:
 ```
 docker compose up -d
 ```
 
-Para arrncar com um container em específico, por exemplo o do MLFlow:
+Para arrancar  um container em específico, por exemplo o do MLFlow:
 ```
 docker compose up -d mlflow-tracking-server
 ```
