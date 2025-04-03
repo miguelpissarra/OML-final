@@ -177,7 +177,7 @@ Para criar as actions no github que garantem o CICD, é necessário criar localm
 Caso o fluxo corra sem erros, será criada uma nova versão da imagem docker no repositório.
 Os resultados das actions poderão ser consultadas no repositório, aqui: https://github.com/miguelpissarra/OML-final/actions.
 
-`Nota:` excluí as alterações no ficheiro `README.md` para estas não dispararem o CIDE uma vez que não têm impacto no processo de CICD. Esta exclusão foi feita no ficheiro cicd.yaml (no `on->push`), a saber:
+`Nota:` excluí as alterações no ficheiro `README.md` para estas não dispararem o CICD uma vez que não têm impacto no processo. Esta exclusão foi feita no ficheiro cicd.yaml (no `on->push`), a saber:
 ```
     paths-ignore:
       - 'README.md'
