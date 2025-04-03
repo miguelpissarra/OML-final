@@ -41,9 +41,10 @@ Este repositório (https://github.com/miguelpissarra/OML-final) descreve o proce
 - [Prever Default](#prever-default)
     - [Configuração](#configuracao)
     - [Modelos](#modelos)
-    - [Mlflow](#mlflow)
+    - [MLFlow](#mlflow)
     - [Webservice](#webservice)
     - [Tests](#tests)
+    - [Docker](#docker)
     - [CICD](#cicd)
 - [Comandos Úteis](#comandos-úteis)
 
@@ -63,18 +64,11 @@ Instalar os packages necessários para o projeto:
 ```
 conda install mlflow pandas scikit-learn ipykernel pytest
 ```
-Criar o ficheiro conda.yaml com o export o ambiente
+Criar o ficheiro conda.yaml com o export o ambiente:
 ```
 conda env export --no-builds -f conda.yaml
 ```
 No entanto devido a problemas com o conda.yaml criado, foi utilizado o ficheiro gerado em aula.
-
-Ficheiros docker-compose.yaml e Dockerfile.Service:
-
-O ficheiro docker-compose.yaml contém a gestão dos dois serviços criados, o do mlflow e da fastapi.
-O ficheiro Dockerfile.Service contém a configuração do fastapi que irá permitir a utilização dos modelos para efetuar as previsões.
-Nota: para modelos de elevado volume, pode ser necessário ajustar o timeout do mlflow.
-No ficheiro docker-compose.yaml configurei (embora não fosse necessário) o timeout para 300 segundos da seguinte forma: `--gunicorn-opts "--timeout=300"`.
 
 
 ## Modelos
@@ -88,20 +82,20 @@ O notebook foi adaptado para criar várias runs (com pipelines), uma por modelo,
 - Random Forest
 - Neural Network
 
-No final, o modelo com melhores resultados foi o random forest e através do UI do mlflow, coloquei-lhe a tag de `champiom`, ajustando também o ficheiro `app.json` da pasta `config` que é onde são guardadas e depois lidas as configurações de acesso aos dois serviços.
+No final, o modelo com melhores resultados foi o random forest e através do UI do MLFlow, coloquei-lhe a tag de `champiom`, ajustando também o ficheiro `app.json` da pasta `config` que é onde são guardadas e depois lidas as configurações de acesso aos dois serviços.
 
 Fica a resalva que devido ao tamanho do modelo gerado, reduzi os estimadores para manter o tamanho abaixo dos 60MB. Quando o modelo foi treinado com os estimadores que o notebook tinha inicialmente, o tamanho do modelo não permitia fazer o push para o repositório. A diferença de estimadores não prejudicou muito o desempenho e permitiu avançar com o projeto.
 Ainda criei um novo ambiente para testar a utilização do package `lfs` para gerir `large files` mas embora localmente tenha funcionado e fosse possível fazer push para o repositório (um criado para este efeito), quando a CICD execudava os testes por exemplo, dava sempre erro (http connection failed ou timeout), provavelmente porque no ambiente remoto faltava a instalação do `lfs`. Certamente  que é possível resolver este problema de volume de dados mas não investiguei mais pois não é o propósito do projeto.
 O importante é que com a redução dos estimadores, no final tudo funcionou sem problemas :).
 
-## Mlflow
+## MLFlow
 Para instanciar (através do terminal no VSC por exemplo):
 - mlflow ui --backend-store-uri ./mlruns
 
-Para testar o funcionamento do Mlflow (UI):
+Para testar o funcionamento do MLFlow (UI):
 - http://localhost:5000
 
-Nota: caso não seja possível aceder à UI do Mlflow devido a alguma incompatibilidade (o que me aconteceu de facto), deve ser feito o seguinte:
+Nota: caso não seja possível aceder à UI do MLFlow devido a alguma incompatibilidade (o que me aconteceu de facto), deve ser feito o seguinte:
 ```
 pip uninstall mlflow
 ````
@@ -113,7 +107,7 @@ Desta forma será resolvida qualquer incompatibilidade e o UI irá funcionar sem
 
 ## Webservice
 
-No python script `src\app\main.py` foi desenvolvida uma aplicação simples com a fastapi.
+No python script `src\app\main.py` foi desenvolvida uma aplicação simples com a FastAPI.
 
 Esta app expõe o endpoint `/default` na qual espera receber as features de input do modelo (em formato json, no body do pedido) e retorna a previsão dada por este.
 
@@ -123,7 +117,7 @@ Para correr a app: com o ambiente deste projeto ativo, na raiz do projeto, execu
 python ./src/app/main.py
 ```
 
-Para testar o serviço (fastapi), deverá ser efetuado o seguinte:
+Para testar o serviço (FastAPI), deverá ser efetuado o seguinte:
 - http://localhost:5002/docs
 - Utilizar a página html presente na diretoria `frontend` deste projeto e realizar um pedido (e ver a resposta) através desse frontend.
 
@@ -143,12 +137,40 @@ python -m pytest tests
 
 ```
 
+## Docker
+
+Ficheiros docker-compose.yaml e Dockerfile.Service:
+
+O ficheiro docker-compose.yaml contém a gestão dos dois serviços criados, o do MLFlow e da FastAPI.
+O ficheiro Dockerfile.Service contém a configuração do FastAPI que irá permitir a utilização dos modelos para efetuar as previsões.
+Nota: para modelos de elevado volume, pode ser necessário ajustar o timeout do MLFlow pelo que no ficheiro docker-compose.yaml configurei (embora não fosse necessário) o timeout para 300 segundos com o parametro:
+```
+--gunicorn-opts "--timeout=300"`
+```
+
+Para arrancar com os containers:
+```
+docker compose up -d
+```
+
+Para arrncar com um container em específico, por exemplo o do MLFlow:
+```
+docker compose up -d mlflow-tracking-server
+```
+
+Para parar os containers:
+```
+docker compose down
+```
+
+
 ## CICD
 
 Para criar as actions no github que garantem o CICD, é necessário criar localmente a pasta `github\workflows` e dentro dela, colocar o ficheiro yaml responsável pela execução do fluxo (action) que irá ser disparado sempre que for efetuado um push.
 Caso o fluxo corra sem erros, será criada uma nova versão da imagem docker no repositório.
-Os resultados das actions poderão ser consultadas no repositório, aqui: https://github.com/miguelpissarra/OML-final/actions
-Nota: excluí as alterações no ficheiro `README.md` para estas não dispararem o CIDE uma vez que não têm impacto no processo de CICD. Esta exclusão foi feita no ficheiro cicd.yaml (no `on->push`), a saber:
+Os resultados das actions poderão ser consultadas no repositório, aqui: https://github.com/miguelpissarra/OML-final/actions.
+
+`Nota:` excluí as alterações no ficheiro `README.md` para estas não dispararem o CIDE uma vez que não têm impacto no processo de CICD. Esta exclusão foi feita no ficheiro cicd.yaml (no `on->push`), a saber:
 ```
     paths-ignore:
       - 'README.md'
@@ -184,4 +206,7 @@ Por padrão, o Windows bloqueia a execução de scripts não assinados no PowerS
 ```
 Set-ExecutionPolicy Unrestricted -Scope LocalMachine -Force
 ```
+### Docker
+
+A documentação do docker pode ser consultada aqui: https://docs.docker.com/
 
