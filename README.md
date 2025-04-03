@@ -150,9 +150,14 @@ O ficheiro Dockerfile.Service contém a configuração do FastAPI que irá permi
 --gunicorn-opts "--timeout=300"`
 ```
 
-Para arrancar (e criar se necessário) os containers:
+Para arrancar os containers:
 ```
 docker compose up -d
+```
+
+Para arrancar mas antes fazer o `build` dos containers:
+```
+docker compose up -d --build
 ```
 
 Para arrancar  um container em específico, por exemplo o do MLFlow:
